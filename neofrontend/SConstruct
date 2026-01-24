@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
+import shutil
 
 env = SConscript("godot-cpp/SConstruct")
 
@@ -12,9 +13,37 @@ env = SConscript("godot-cpp/SConstruct")
 # - CPPDEFINES are for pre-processor defines
 # - LINKFLAGS are for linking flags
 
+# Live2D SDK paths
+LIVE2D_SDK_PATH = "CubismSdkForNative-5-r.4.1"
+LIVE2D_CORE_PATH = os.path.join(LIVE2D_SDK_PATH, "Core")
+LIVE2D_FRAMEWORK_PATH = os.path.join(LIVE2D_SDK_PATH, "Framework")
+LIVE2D_INCLUDE_PATH = os.path.join(LIVE2D_CORE_PATH, "include")
+LIVE2D_FRAMEWORK_INCLUDE_PATH = os.path.join(LIVE2D_FRAMEWORK_PATH, "src")
+LIVE2D_LIB_PATH = os.path.join(LIVE2D_CORE_PATH, "lib", env["platform"], env["arch"])
+
 # tweak this if you want to use different folders, or more folders, to store your source code in.
-env.Append(CPPPATH=["src/"])
+env.Append(CPPPATH=["src/", LIVE2D_INCLUDE_PATH, LIVE2D_FRAMEWORK_INCLUDE_PATH])
 sources = Glob("src/*.cpp")
+sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "*.cpp"))
+sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Math", "*.cpp"))
+sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Type", "*.cpp"))
+sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Id", "*.cpp"))
+# 使用我们自己的Godot渲染器实现
+sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Model", "*.cpp"))
+sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Motion", "*.cpp"))
+sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Physics", "*.cpp"))
+sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Effect", "*.cpp"))
+sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Utils", "*.cpp"))
+sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Utils", "String", "*.cpp"))
+sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Utils", "Json", "*.cpp"))
+sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Utils", "File", "*.cpp"))
+
+# Add Live2D defines
+env.Append(CPPDEFINES=["CSM_ENABLE_LOGGING=0"])
+
+# Add Live2D library
+env.Append(LIBPATH=[LIVE2D_LIB_PATH])
+env.Append(LIBS=["Live2DCubismCore"])
 
 if env["platform"] == "macos":
     library = env.SharedLibrary(
@@ -35,6 +64,7 @@ elif env["platform"] == "ios":
             source=sources,
         )
 else:
+    shutil.copy(os.path.join(LIVE2D_CORE_PATH, "dll", env["platform"], env["arch"], "libLive2DCubismCore{}".format(env["SHLIBSUFFIX"])), "bin/")
     library = env.SharedLibrary(
         "bin/libgdexample{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
         source=sources,

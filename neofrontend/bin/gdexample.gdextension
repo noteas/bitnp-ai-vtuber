@@ -32,3 +32,6 @@ ios.debug = {
 ios.release = {
     "res://bin/libgodot-cpp.ios.template_release.xcframework": ""
 }
+linux.x86_64 = {
+    "res://bin/libLive2DCubismCore.so": ""
+}

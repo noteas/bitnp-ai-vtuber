@@ -3,3 +3,4 @@
 /android/
 
 .sconsign.dblite
+*.os

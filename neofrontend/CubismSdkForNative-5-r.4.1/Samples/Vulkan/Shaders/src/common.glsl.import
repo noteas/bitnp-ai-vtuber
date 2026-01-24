@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://na52iyff5rko"
+path="res://.godot/imported/common.glsl-ba984a21d72cb91a1f6cab098b0340c9.res"
+
+[deps]
+
+source_file="res://CubismSdkForNative-5-r.4.1/Samples/Vulkan/Shaders/src/common.glsl"
+dest_files=["res://.godot/imported/common.glsl-ba984a21d72cb91a1f6cab098b0340c9.res"]
+
+[params]
+
