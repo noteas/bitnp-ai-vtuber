@@ -19,10 +19,39 @@ LIVE2D_CORE_PATH = os.path.join(LIVE2D_SDK_PATH, "Core")
 LIVE2D_FRAMEWORK_PATH = os.path.join(LIVE2D_SDK_PATH, "Framework")
 LIVE2D_INCLUDE_PATH = os.path.join(LIVE2D_CORE_PATH, "include")
 LIVE2D_FRAMEWORK_INCLUDE_PATH = os.path.join(LIVE2D_FRAMEWORK_PATH, "src")
-LIVE2D_LIB_PATH = os.path.join(LIVE2D_CORE_PATH, "lib", env["platform"], env["arch"])
+LIVE2D_LIB_PATH = os.path.join(LIVE2D_CORE_PATH, "lib", env["platform"],
+                               env["arch"])
+
+# For **fuking winows** and **fuking msvc**
+
+target_arch = env["arch"]
+msvc_version_folder = ""
+
+if env["platform"] == "windows":
+    # 1. Check architecture naming differences (Godot uses x86_64, SDK might use x64)
+    # Please manually check if your SDK folder is x64 or x86_64
+    if target_arch == "x86_64" and not os.path.exists(
+            os.path.join(LIVE2D_CORE_PATH, "lib", "windows", "x86_64")):
+        target_arch = "x64"
+
+    # 2. Check MSVC version subfolder (142, 143, etc.)
+    base_lib_path = os.path.join(LIVE2D_CORE_PATH, "lib", env["platform"],
+                                 target_arch)
+    if os.path.exists(os.path.join(base_lib_path, "142")):
+        msvc_version_folder = "142"
+    elif os.path.exists(os.path.join(base_lib_path, "143")):
+        msvc_version_folder = "143"
+
+    LIVE2D_LIB_PATH = os.path.join(base_lib_path, msvc_version_folder)
+else:
+    LIVE2D_LIB_PATH = os.path.join(LIVE2D_CORE_PATH, "lib", env["platform"],
+                                   env["arch"])
+
+print(f"Live2D Lib Path detected: {LIVE2D_LIB_PATH}")
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
-env.Append(CPPPATH=["src/", LIVE2D_INCLUDE_PATH, LIVE2D_FRAMEWORK_INCLUDE_PATH])
+env.Append(
+    CPPPATH=["src/", LIVE2D_INCLUDE_PATH, LIVE2D_FRAMEWORK_INCLUDE_PATH])
 sources = Glob("src/*.cpp")
 sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "*.cpp"))
 sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Math", "*.cpp"))
@@ -34,28 +63,37 @@ sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Motion", "*.cpp"))
 sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Physics", "*.cpp"))
 sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Effect", "*.cpp"))
 sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Utils", "*.cpp"))
-sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Utils", "String", "*.cpp"))
-sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Utils", "Json", "*.cpp"))
-sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Utils", "File", "*.cpp"))
+sources += Glob(
+    os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Utils", "String", "*.cpp"))
+sources += Glob(
+    os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Utils", "Json", "*.cpp"))
+sources += Glob(
+    os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Utils", "File", "*.cpp"))
 
 # Add Live2D defines
 env.Append(CPPDEFINES=["CSM_ENABLE_LOGGING=0"])
 
 # Add Live2D library
 env.Append(LIBPATH=[LIVE2D_LIB_PATH])
-env.Append(LIBS=["Live2DCubismCore"])
+
+suffix = ""
+# Fuking windows DLL hell
+if env["platform"] == "windows":
+    suffix = "_MDd"
+
+env.Append(LIBS=[f"Live2DCubismCore{suffix}"])
 
 if env["platform"] == "macos":
     library = env.SharedLibrary(
         "bin/libgdexample.{}.{}.framework/libgdexample.{}.{}".format(
-            env["platform"], env["target"], env["platform"], env["target"]
-        ),
+            env["platform"], env["target"], env["platform"], env["target"]),
         source=sources,
     )
 elif env["platform"] == "ios":
     if env["ios_simulator"]:
         library = env.StaticLibrary(
-            "bin/libgdexample.{}.{}.simulator.a".format(env["platform"], env["target"]),
+            "bin/libgdexample.{}.{}.simulator.a".format(
+                env["platform"], env["target"]),
             source=sources,
         )
     else:
@@ -63,8 +101,20 @@ elif env["platform"] == "ios":
             "bin/libgdexample.{}.{}.a".format(env["platform"], env["target"]),
             source=sources,
         )
+elif env["platform"] == "windows":
+    env.Append(LINKFLAGS=["/NODEFAULTLIB:LIBCMTD", "/NODEFAULTLIB:LIBCMT"])
+    shutil.copy(
+        os.path.join(LIVE2D_CORE_PATH, "dll", env["platform"], env["arch"],
+                     "Live2DCubismCore{}".format(env["SHLIBSUFFIX"])), "bin/")
+    library = env.SharedLibrary(
+        "bin/libgdexample{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
+        source=sources,
+    )
 else:
-    shutil.copy(os.path.join(LIVE2D_CORE_PATH, "dll", env["platform"], env["arch"], "libLive2DCubismCore{}".format(env["SHLIBSUFFIX"])), "bin/")
+    shutil.copy(
+        os.path.join(LIVE2D_CORE_PATH, "dll", env["platform"], env["arch"],
+                     "libLive2DCubismCore{}".format(env["SHLIBSUFFIX"])),
+        "bin/")
     library = env.SharedLibrary(
         "bin/libgdexample{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
         source=sources,
