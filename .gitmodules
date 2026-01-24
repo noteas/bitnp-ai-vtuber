@@ -1,0 +1,4 @@
+[submodule "neofrontend/godot-cpp"]
+	path = neofrontend/godot-cpp
+	url = https://github.com/godotengine/godot-cpp
+	branch = 4.5
