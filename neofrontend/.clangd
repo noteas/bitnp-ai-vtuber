@@ -1,0 +1,32 @@
+---
+# clangd 配置文件 - 解决 nlohmann/json 和其他头文件找不到的问题
+
+# 编译标志配置
+CompileFlags:
+  Add:
+    # 添加绝对路径以便找到 nlohmann/json.hpp
+    - "-Ic:/Users/cheng/coding/bitnp-ai-vtuber/neofrontend/src"
+    # Godot 相关包含路径
+    - "-Ic:/Users/cheng/coding/bitnp-ai-vtuber/neofrontend/godot-cpp/include"
+    - "-Ic:/Users/cheng/coding/bitnp-ai-vtuber/neofrontend/godot-cpp/gen/include"
+    # Cubism SDK 相关
+    - "-Ic:/Users/cheng/coding/bitnp-ai-vtuber/neofrontend/CubismSdkForNative-5-r.4.1/Core/include"
+    - "-Ic:/Users/cheng/coding/bitnp-ai-vtuber/neofrontend/CubismSdkForNative-5-r.4.1/Framework/src"
+    # C++ 标准和定义
+    - "-std=c++20"
+    - "-DWIN32"
+    - "-D_WINDOWS"
+
+# 格式化选项
+Formatting:
+  # 使用项目根目录的 .clang-format 文件
+  SortIncludes: true
+
+# 诊断选项
+Diagnostics:
+  # 减少不必要的诊断噪声
+  Suppress:
+    - "unknown-warning-option"
+    - "-Wunknown-warning-option"
+  ClangTidy:
+    Checks: "-*, readability-*"

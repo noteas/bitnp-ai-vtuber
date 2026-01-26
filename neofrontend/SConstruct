@@ -53,6 +53,8 @@ print(f"Live2D Lib Path detected: {LIVE2D_LIB_PATH}")
 env.Append(
     CPPPATH=["src/", LIVE2D_INCLUDE_PATH, LIVE2D_FRAMEWORK_INCLUDE_PATH])
 sources = Glob("src/*.cpp")
+sources += Glob("src/audio/*.cpp")
+sources += Glob("src/ws/*.cpp")
 sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "*.cpp"))
 sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Math", "*.cpp"))
 sources += Glob(os.path.join(LIVE2D_FRAMEWORK_PATH, "src", "Type", "*.cpp"))

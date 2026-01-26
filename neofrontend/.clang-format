@@ -1,0 +1,59 @@
+# Clang-format 配置文件 - 针对本项目的格式化规则
+# 统一缩进为 4 空格
+
+BasedOnStyle: LLVM
+AccessModifierOffset: -4
+AlignAfterOpenBracket: DontAlign
+AlignOperands: DontAlign
+AlignTrailingComments:
+  Kind: Never
+  OverEmptyLines: 0
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: Inline
+
+AttributeMacros:
+  - _ALWAYS_INLINE_
+  - _FORCE_INLINE_
+  - _NO_INLINE_
+
+BreakConstructorInitializers: AfterColon
+ColumnLimit: 0
+
+# 统一缩进设置
+IndentWidth: 4
+ConstructorInitializerIndentWidth: 4  # 改为 4 以保持一致
+ContinuationIndentWidth: 4             # 改为 4 以保持一致
+
+Cpp11BracedListStyle: false
+IndentCaseLabels: true
+
+IncludeCategories:
+  - Regex: ^".*"$
+    Priority: 1
+  - Regex: ^<.*\.h>$
+    Priority: 2
+  - Regex: ^<.*>$
+    Priority: 3
+
+InsertBraces: true
+JavaImportGroups:
+  - org.godotengine
+  - android
+  - androidx
+  - com.android
+  - com.google
+  - java
+  - javax
+
+KeepEmptyLinesAtTheStartOfBlocks: false
+ObjCBlockIndentWidth: 4
+PackConstructorInitializers: NextLine
+RemoveSemicolon: true
+
+SpacesInLineCommentPrefix:
+  Minimum: 0
+  Maximum: -1
+
+Standard: c++20
+TabWidth: 4
+UseTab: Always
